@@ -22,40 +22,40 @@ Actually, there is 1 method. More methods coming in soon.
 **PynamicBottleneck.__init__(_self, case_lv_)**   
 >  Initialize PydynamicBottleneck object. It takes 1 parameter.   
 >    
->**Parameter : case_lv : pandas.DataFrame**   
->&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
->Case-level event log. The log **must** contain following 3 columns: case id, activity id, timestamp.
+> **Parameter : case_lv : pandas.DataFrame**   
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+> Case-level event log. The log **must** contain following 3 columns: case id, activity id, timestamp.
 >
->The case-level event log should be like
->|Case ID|Activity ID|Timestamp|
->|---|---|---|
->|0|Eat bacon|2021-11-24 07:24|
->|0|Go to work|2021-11-24 08:30|
->|0|Come back home|2021-11-24 18:13|
->|1|Eat concrete powder|2021-11-25 07:20|
->|1|Goodbye, world!|2021-11-25 08:01|
->|...|...|...|   
+> The case-level event log should be like
+> |Case ID|Activity ID|Timestamp|
+> |---|---|---|
+> |0|Eat bacon|2021-11-24 07:24|
+> |0|Go to work|2021-11-24 08:30|
+> |0|Come back home|2021-11-24 18:13|
+> |1|Eat concrete powder|2021-11-25 07:20|
+> |1|Goodbye, world!|2021-11-25 08:01|
+> |...|...|...|   
 >
 　   
 **PynamicBottleneck.transform(_self, time_origin=None, bin_length=None_)**
->Transform case-level event log and returns segment-level event log.   
+> Transform case-level event log and returns segment-level event log.   
 >
->**Parameter : time_origin : _datetime-like, str, int, float_**   
->&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
->Start timestamp of the first bin. If _**None**_, it is set to the earliest start timestamp   
+> **Parameter : time_origin : _datetime-like, str, int, float_**   
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+> Start timestamp of the first bin. If _**None**_, it is set to the earliest start timestamp   
 >
->&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
->**bin_length : _scalar_**   
->&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
->Length to bin segment-level events. Unit is second.   
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+> **bin_length : _scalar_**   
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+> Length to bin segment-level events. Unit is second.   
 >
 > Returned segment-level event log will be like
->|Case ID|Souce|Target|Start Timestamp|End Timestamp|Worktime|Modified z-Score|Bin|
->|---|---|---|---|---|---|---|---|
->|0|Eat bacon|Go to work|2021-11-24 07:24|2021-11-24 08:30|3960|1.54|0|
->|0|Go to work|Come back home|2021-11-24 08:30|2021-11-24 18:13|34980|1.05|0|
->|1|Eat concrete powder|Goodbye, world!|2021-11-25 07:20|2021-11-25 08:01|2460|2.04|4|
->|...|...|...|...|...|...|...|...|   
+> |Case ID|Source|Target|Start Timestamp|End Timestamp|Worktime|Modified z-Score|Bin|
+> |---|---|---|---|---|---|---|---|
+> |0|Eat bacon|Go to work|2021-11-24 07:24|2021-11-24 08:30|3960|1.54|0|
+> |0|Go to work|Come back home|2021-11-24 08:30|2021-11-24 18:13|34980|1.05|0|
+> |1|Eat concrete powder|Goodbye, world!|2021-11-25 07:20|2021-11-25 08:01|2460|2.04|4|
+> |...|...|...|...|...|...|...|...|   
 >
 > where 'Worktime' is timedelta between 'Start Timestamp' and 'End Timestamp'.   
 > 
@@ -81,7 +81,23 @@ Actually, there is 1 method. More methods coming in soon.
 >
 > **Parameter : act_order : _1d array-like_**   
 > &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+> Order of activity flow. The last activity goes to the first position of the list and first one goes the last position of the list.
+> You can just simply write down activities as list and reverse it.
 > 
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+> **blockage : _dict_**   
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+> Blockage dictionary which you can get from **_detect_blockage()_**
+> 
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+> **highload : _dict_**   
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+> High-load dictionary which you can get from **_detect_highload()_**
+> 
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+> **line_color, line_weight, blockage_facecolor, ...**   
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+> Design stuffs.
 
 
 ## Example
