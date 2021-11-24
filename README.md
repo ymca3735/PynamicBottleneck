@@ -11,9 +11,12 @@ Before you get started. you should read the paper below. This code is based on :
 * matplotlib
 
 ## Installation
+**Q.** _How do I install this?_   
+**A.** _Yes._   
 
 ## Usage
 The package includes one class **PynamicBottleneck** and several methods.
+Actually, there is 1 method. More methods coming in soon.
 
 ### class PynamicBottleneck Structure:
 **PynamicBottleneck.__init__(_self, case_lv_)**   
@@ -54,20 +57,57 @@ The package includes one class **PynamicBottleneck** and several methods.
 >|1|Eat concrete powder|Goodbye, world!|2021-11-25 07:20|2021-11-25 08:01|2460|2.04|4|
 >|...|...|...|...|...|...|...|...|   
 >
-> where 'Worktime' is timedelta between 'Start Timestamp' and 'End Timestamp'.
+> where 'Worktime' is timedelta between 'Start Timestamp' and 'End Timestamp'.   
+> 
 　   
-**PynamicBottleneck.detect_blockage(_self, threshold=2_)**
->Detect blockage event over each segment level. Every event that exceeds **_threshold_** is a delay, and more than 2 consecutive delays is a blockage.   
+**PynamicBottleneck.detect_blockage(_self, threshold=2_)**   
+> Detect blockage event over each segment level. Every event that exceeds **_threshold_** is a delay, and more than 2 consecutive delays is a blockage. Returns dictionary with (**_Source_**, **_Target_**) as key and blockage lists, containing indices as value.   
 >
->**Parameter : threshold : _scalar_**   
->&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+> **Parameter : threshold : _scalar_**   
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 > Event is determined as delay if its modified z-score exceeds this value. Default is 2.   
 > 
 　   
-**PynamicBottleneck.detect_highload(_self, threshold=75_)**
->Detect high load event over each segment level. A bin is determined as high load bin if the size of it exceeds **_threshold_**th percentile of bin sizes in the segment level.   
->
->**Parameter : threshold : _scalar_**   
->&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+**PynamicBottleneck.detect_highload(_self, threshold=75_)**   
+> Detect high load event over each segment level. A bin is determined as high load bin if the size of it exceeds **_threshold_** th percentile of bin sizes in the segment level. Returns dictionary with (**_Source_**, **_Target_**) as key and blockage lists containing indices as value.   
+>   
+> **Parameter : threshold : _scalar_**   
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 > Percentile to determine high-load event. It must be between 0 and 100. Default is 75.   
+>   
+　   
+**PynamicBottleneck.viz(_self, act_order, blockage=None, highload=None, line_color='lightsteelblue', line_weight=1, blockage_facecolor='r', highload_facecolor='b', blockage_alpha=0.2, highload_alpha=0.2, dpi=100, figsize=(16, 9), title='Dynamic Bottlenecks : Blockage & High Load'_)**   
+> Detect high load event over each segment level. A bin is determined as high load bin if the size of it exceeds **_threshold_** th percentile of bin sizes in the segment level. Returns dictionary with (**_Source_**, **_Target_**) as key and blockage lists containing indices as value.   
+>
+> **Parameter : act_order : _1d array-like_**   
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 > 
+
+
+## Example
+```python
+from PynamicBottleneck import *
+
+
+case_lv = pd.read_csv(
+    'data/case_level_event_log.csv',
+    encoding='utf-8-sig',
+    converters={
+        'Timestamp': pd.Timestamp
+    },
+)
+
+pbn = PynamicBottleneck(case_lv, 'Case', 'Activity', 'Timestamp')
+
+# transform case level log to segment level log
+pbn.transform(bin_length=86400)
+
+# get blockage events
+bl = pbn.detect_blockage(2)
+
+# get high load events
+hl = pbn.detect_highload(75)
+
+# visualize
+pbn.viz(acts, highload=hl, blockage=bl)
+```
